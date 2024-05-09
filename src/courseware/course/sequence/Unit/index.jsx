@@ -48,6 +48,7 @@ const Unit = ({
           pluginProps={{
             courseId,
             unitId: id,
+            unitTitle: unit.title,
           }}
         />
       </div>
