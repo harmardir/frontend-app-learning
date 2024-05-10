@@ -19,7 +19,11 @@ function CourseBreadcrumb({
   return (
     <>
       {withSeparator && (
-        <li className="col-auto p-0 mx-2 text-primary-500 text-truncate text-nowrap" role="presentation" aria-hidden>/</li>
+        <li className="col-auto p-0 mx-2 text-primary-500 text-truncate text-nowrap" role="presentation" aria-hidden>
+          <svg xmlns="http://www.w3.org/2000/svg" width="8" height="12" viewBox="0 0 3 5" fill="none">
+        <path d="M2.74219 0.390625L0.534966 2.32194L2.74219 4.25326" stroke="#D2D2D2" stroke-width="1"></path>
+          </svg>
+        </li>
       )}
 
       <li style={{
