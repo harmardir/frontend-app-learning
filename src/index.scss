@@ -361,6 +361,18 @@
   box-shadow: 0 .0625rem .125rem rgba(0, 0, 0, .2) !important;
 }
 
+
+@media only screen and (min-width: 400px) {
+  .position-relative.d-flex.align-items-start {
+    padding: 0px !important;
+  }
+
+  .sequence.w-100.position-relative {
+    width: 388px !important;
+  }
+}
+
+
 // Import component-specific sass files
 @import "courseware/course/celebration/CelebrationModal.scss";
 @import "courseware/course/sidebar/sidebars/notifications/NotificationIcon.scss";
