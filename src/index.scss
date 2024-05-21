@@ -372,8 +372,8 @@
   }
 }
 
-[dir=rtl] .notification-button {
-  margin-left: 10px;
+.notification-button {
+  margin-right: 20px;
 }
 
 .pgn__menu-select-trigger-btn.btn.btn-link {
@@ -387,7 +387,12 @@
 .pgn__menu-select-trigger-btn:hover {
   background: none !important;
   background-color: none !important;
+  color: #06263D !important;
   text-decoration: underline !important;
+}
+
+.pgn__menu-select-trigger-btn.btn.btn-link.active {
+  font-weight: 700 !important;
 }
 
 // Import component-specific sass files
