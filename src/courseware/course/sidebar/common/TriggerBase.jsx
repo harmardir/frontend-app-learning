@@ -9,7 +9,7 @@ function SidebarTriggerBase({
 }) {
   return (
     <button
-      className="border border-light-400 bg-transparent align-items-center align-content-center d-flex"
+      className="border border-light-400 bg-transparent align-items-center align-content-center d-flex notification-button"
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}

@@ -372,6 +372,13 @@
   }
 }
 
+.notification-button {
+  margin-left: 10px;
+}
+
+nav[aria-label="breadcrumb"] ol.list-unstyled.d-flex.flex-nowrap.align-items-center li {
+  font-size: 14px !important;
+}
 
 // Import component-specific sass files
 @import "courseware/course/celebration/CelebrationModal.scss";
