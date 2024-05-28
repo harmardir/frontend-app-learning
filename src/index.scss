@@ -395,6 +395,79 @@
   font-weight: 700 !important;
 }
 
+
+.unit h1 {
+color: var(--Blue-Dark, #06263D);
+text-align: right;
+font-family: "Lateef" !important;
+font-size: 33.709px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+text-transform: capitalize;
+text-align: right !important;
+z-index: 1;
+}
+
+.unit h1::before {
+  content: "";
+  position: absolute;
+  background: var(--Acinet-Green-Faded, #E7EFD5);
+  height: 20px;
+  width: 100%;
+  bottom: -10px;
+  left: 0;
+  z-index: 0;
+}
+
+[dir=rtl] .unit h1 {
+text-align: right !important;
+}
+
+.h2 {
+  font-family: Lateef;
+  font-size: 42px;
+  font-weight: 400;
+  line-height: 100%;
+  color: var(--Blue-Dark, #06263D);
+}
+
+.pgn__card-header-title-md {
+  font-family: 'Noto Kufi Arabic';
+  font-size: 16px;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--Blue-Dark, #06263D);
+}
+
+.btn.btn-outline-primary.btn-block {
+  border-radius: 1.91px;
+  border: 0.764px solid var(--Blue-Dark, #06263D);
+  color: var(--Blue-Dark, #06263D);
+  text-align: center;
+  font-family: 'Noto Kufi Arabic';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.align-middle {
+  color: var(--Blue-Dark, #06263D);
+  text-align: right;
+  font-family: "Noto Kufi Arabic";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  text-transform: capitalize;
+}
+
+
+
+
+
+
 // Import component-specific sass files
 @import "courseware/course/celebration/CelebrationModal.scss";
 @import "courseware/course/sidebar/sidebars/notifications/NotificationIcon.scss";
