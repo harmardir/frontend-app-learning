@@ -9,18 +9,21 @@ import Tabs from '../generic/tabs/Tabs';
 function CourseTabsNavigation({
   activeTabSlug, className, tabs, intl,
 }) {
+
+ 
+  const bannerImageUrl = "https://undp-lms.kashida-learning.co/asset-v1:ACINET+ACINET_A+T2_2024+type@asset+block@course_about.png";
+  const bannerAltText = "Course About Banner";
+
+
   return (
 
     <div id="courseTabsNavigation" className={classNames('course-tabs-navigation', className)}>
 
-<div className="banner-image-wrapper">
-        <img
-          src="https://undp-lms.kashida-learning.co/asset-v1:ACINET+ACINET_A+T2_2024+type@asset+block@course_about.png"
-          alt="Course About Banner"
-          className="banner-image"
-        />
-
-
+      {/* Banner Image */}
+      <div className="banner-image-wrapper">
+        <img src={bannerImageUrl} alt={bannerAltText} className="banner-image" />
+      </div>
+      
       <div className="container-xl">
         <Tabs
           className="nav-underline-tabs"
