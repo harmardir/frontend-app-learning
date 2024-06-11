@@ -16,12 +16,15 @@ function CourseBreadcrumb({
   content, withSeparator, courseId, sequenceId, unitId, isStaff,
 }) {
   const defaultContent = content.filter(destination => destination.default)[0] || { id: courseId, label: '', sequences: [] };
+  const firstSequence = defaultContent.sequences.length ? defaultContent.sequences[0] : null;
+  const firstUnit = firstSequence && firstSequence.units.length ? firstSequence.units[0] : null;
+
   return (
     <>
       {withSeparator && (
         <li className="col-auto p-0 mx-2 text-primary-500 text-truncate text-nowrap" role="presentation" aria-hidden>
           <svg xmlns="http://www.w3.org/2000/svg" width="8" height="12" viewBox="0 0 3 5" fill="none">
-            <path d="M2.74219 0.390625L0.534966 2.32194L2.74219 4.25326" stroke="#D2D2D2" stroke-width="1"></path>
+            <path d="M2.74219 0.390625L0.534966 2.32194L2.74219 4.25326" stroke="#D2D2D2" strokeWidth="1"></path>
           </svg>
         </li>
       )}
@@ -36,9 +39,13 @@ function CourseBreadcrumb({
           ? (
             <Link
               className="text-primary-500"
-              to={defaultContent.sequences.length
-                ? `/course/${courseId}/${defaultContent.sequences[0].id}${defaultContent.sequences[0].units.length ? `/${defaultContent.sequences[0].units[0].id}` : ''}`
-                : `/course/${courseId}/${defaultContent.id}`}
+              to={
+                firstSequence
+                  ? firstUnit
+                    ? `/course/${courseId}/${firstSequence.id}/${firstUnit.id}`
+                    : `/course/${courseId}/${firstSequence.id}`
+                  : `/course/${courseId}/${defaultContent.id}`
+              }
             >
               {defaultContent.label}
             </Link>
@@ -47,6 +54,7 @@ function CourseBreadcrumb({
             <SelectMenu isLink defaultMessage={defaultContent.label}>
               {content.map(item => (
                 <JumpNavMenuItem
+                  key={item.id}
                   isDefault={item.default}
                   sequences={item.sequences}
                   courseId={courseId}
@@ -158,7 +166,7 @@ export default function CourseBreadcrumbs({
 
   return (
     <nav aria-label="breadcrumb" className="my-4 d-inline-block col-sm-10">
-      <ol className="list-unstyled d-flex  flex-nowrap align-items-center m-0">
+      <ol className="list-unstyled d-flex flex-nowrap align-items-center m-0">
         <li className="list-unstyled col-auto m-0 p-0">
           <Link
             className="flex-shrink-0 text-primary"
@@ -172,8 +180,9 @@ export default function CourseBreadcrumbs({
             />
           </Link>
         </li>
-        {links.map(content => (
+        {links.map((content, index) => (
           <CourseBreadcrumb
+            key={index}
             courseId={courseId}
             sequenceId={sequenceId}
             unitId={unitId}
