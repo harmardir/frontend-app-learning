@@ -16,15 +16,12 @@ function CourseBreadcrumb({
   content, withSeparator, courseId, sequenceId, unitId, isStaff,
 }) {
   const defaultContent = content.filter(destination => destination.default)[0] || { id: courseId, label: '', sequences: [] };
-  const firstSequence = defaultContent.sequences.length ? defaultContent.sequences[0] : null;
-  const firstUnit = firstSequence && firstSequence.units.length ? firstSequence.units[0] : null;
-
   return (
     <>
       {withSeparator && (
         <li className="col-auto p-0 mx-2 text-primary-500 text-truncate text-nowrap" role="presentation" aria-hidden>
           <svg xmlns="http://www.w3.org/2000/svg" width="8" height="12" viewBox="0 0 3 5" fill="none">
-            <path d="M2.74219 0.390625L0.534966 2.32194L2.74219 4.25326" stroke="#D2D2D2" strokeWidth="1"></path>
+        <path d="M2.74219 0.390625L0.534966 2.32194L2.74219 4.25326" stroke="#D2D2D2" stroke-width="1"></path>
           </svg>
         </li>
       )}
@@ -39,13 +36,9 @@ function CourseBreadcrumb({
           ? (
             <Link
               className="text-primary-500"
-              to={
-                firstSequence
-                  ? firstUnit
-                    ? `/course/${courseId}/${firstSequence.id}/${firstUnit.id}`
-                    : `/course/${courseId}/${firstSequence.id}`
-                  : `/course/${courseId}/${defaultContent.id}`
-              }
+              to={defaultContent.sequences.length
+                ? `/course/${courseId}/${defaultContent.sequences[0].id}`
+                : `/course/${courseId}/${defaultContent.id}`}
             >
               {defaultContent.label}
             </Link>
@@ -54,7 +47,6 @@ function CourseBreadcrumb({
             <SelectMenu isLink defaultMessage={defaultContent.label}>
               {content.map(item => (
                 <JumpNavMenuItem
-                  key={item.id}
                   isDefault={item.default}
                   sequences={item.sequences}
                   courseId={courseId}
@@ -76,18 +68,6 @@ CourseBreadcrumb.propTypes = {
       default: PropTypes.bool,
       id: PropTypes.string,
       label: PropTypes.string,
-      sequences: PropTypes.arrayOf(
-        PropTypes.shape({
-          id: PropTypes.string,
-          label: PropTypes.string,
-          units: PropTypes.arrayOf(
-            PropTypes.shape({
-              id: PropTypes.string,
-              label: PropTypes.string,
-            }),
-          ),
-        }),
-      ),
     }),
   ).isRequired,
   sequenceId: PropTypes.string,
@@ -121,16 +101,12 @@ export default function CourseBreadcrumbs({
   const allSequencesInSections = Object.fromEntries(useModels('sections', course.sectionIds).map(section => [section.id, {
     default: section.id === sectionId,
     title: section.title,
-    sequences: useModels('sequences', section.sequenceIds).map(sequence => ({
-      ...sequence,
-      units: useModels('units', sequence.unitIds),
-    })),
+    sequences: useModels('sequences', section.sequenceIds),
   }]));
 
   const links = useMemo(() => {
     const chapters = [];
     const sequentials = [];
-    const units = [];
     if (courseStatus === 'loaded' && sequenceStatus === 'loaded') {
       Object.entries(allSequencesInSections).forEach(([id, section]) => {
         chapters.push({
@@ -145,28 +121,18 @@ export default function CourseBreadcrumbs({
               id: sequence.id,
               label: sequence.title,
               default: sequence.id === sequenceId,
-              units: sequence.units,
               sequences: [sequence],
             });
-            if (sequence.id === sequenceId) {
-              sequence.units.forEach(unit => {
-                units.push({
-                  id: unit.id,
-                  label: unit.title,
-                  default: unit.id === unitId,
-                });
-              });
-            }
           });
         }
       });
     }
-    return [chapters, sequentials, units];
-  }, [courseStatus, sequenceStatus, allSequencesInSections, sequenceId, unitId]);
+    return [chapters, sequentials];
+  }, [courseStatus, sequenceStatus, allSequencesInSections]);
 
   return (
     <nav aria-label="breadcrumb" className="my-4 d-inline-block col-sm-10">
-      <ol className="list-unstyled d-flex flex-nowrap align-items-center m-0">
+      <ol className="list-unstyled d-flex  flex-nowrap align-items-center m-0">
         <li className="list-unstyled col-auto m-0 p-0">
           <Link
             className="flex-shrink-0 text-primary"
@@ -180,13 +146,12 @@ export default function CourseBreadcrumbs({
             />
           </Link>
         </li>
-        {links.map((content, index) => (
+        {links.map(content => (
           <CourseBreadcrumb
-            key={index}
             courseId={courseId}
             sequenceId={sequenceId}
-            unitId={unitId}
             content={content}
+            unitId={unitId}
             withSeparator
             isStaff={isStaff}
           />
