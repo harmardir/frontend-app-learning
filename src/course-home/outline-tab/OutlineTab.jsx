@@ -168,53 +168,28 @@ function OutlineTab({ intl }) {
           )}
           <StartOrResumeCourseCard />
           <WelcomeMessage courseId={courseId} />
-          
           {rootCourseId && (
-  <>
-    <div className="row w-100 m-0 mb-3">
-      <div className="col-12 col-md-auto p-0">
-        <Button variant="outline-primary" block onClick={() => { setExpandAll(!expandAll); }}>
-          {expandAll ? intl.formatMessage(messages.collapseAll) : intl.formatMessage(messages.expandAll)}
-        </Button>
-      </div>
-    </div>
-    <ol id="courseHome-outline" className="list-unstyled">
-      {courses[rootCourseId].sectionIds.map((sectionId) => (
-        <li key={sectionId}>
-          <Section
-            courseId={courseId}
-            defaultOpen={sections[sectionId].resumeBlock}
-            expand={expandAll}
-            section={sections[sectionId]}
-          />
-          <ol>
-            {sections[sectionId].subsectionIds.map((subsectionId) => (
-              <li key={subsectionId}>
-                <Subsection
-                  courseId={courseId}
-                  expand={expandAll}
-                  subsection={sections[sectionId].subsections[subsectionId]}
-                />
-                <ol>
-                  {sections[sectionId].subsections[subsectionId].unitIds.map((unitId) => (
-                    <li key={unitId}>
-                      <Unit
-                        courseId={courseId}
-                        expand={expandAll}
-                        unit={sections[sectionId].subsections[subsectionId].units[unitId]}
-                      />
-                    </li>
-                  ))}
-                </ol>
-              </li>
-            ))}
-          </ol>
-        </li>
-      ))}
-    </ol>
-  </>
-)}
-
+            <>
+              <div className="row w-100 m-0 mb-3">
+                <div className="col-12 col-md-auto p-0">
+                  <Button variant="outline-primary" block onClick={() => { setExpandAll(!expandAll); }}>
+                    {expandAll ? intl.formatMessage(messages.collapseAll) : intl.formatMessage(messages.expandAll)}
+                  </Button>
+                </div>
+              </div>
+              <ol id="courseHome-outline" className="list-unstyled">
+                {courses[rootCourseId].sectionIds.map((sectionId) => (
+                  <Section
+                    key={sectionId}
+                    courseId={courseId}
+                    defaultOpen={sections[sectionId].resumeBlock}
+                    expand={expandAll}
+                    section={sections[sectionId]}
+                  />
+                ))}
+              </ol>
+            </>
+          )}
         </div>
         {rootCourseId && (
           <div className="col col-12 col-md-4">
