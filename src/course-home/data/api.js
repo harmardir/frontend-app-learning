@@ -117,6 +117,7 @@ export function normalizeOutlineBlocks(courseId, blocks) {
     courses: {},
     sections: {},
     sequences: {},
+    verticals: {},
   };
   Object.values(blocks).forEach(block => {
     switch (block.type) {
@@ -155,8 +156,17 @@ export function normalizeOutlineBlocks(courseId, blocks) {
         };
         break;
 
+        case 'vertical': // Add case for verticals
+        models.verticals[block.id] = {
+          complete: block.complete,
+          id: block.id,
+          title: block.display_name,
+          showLink: !!block.lms_web_url,
+        };
+        break;
+
       default:
-        logInfo(`Unexpected course block type: ${block.type} with ID ${block.id}.  Expected block types are course, chapter, and sequential.`);
+        logInfo(`Unexpected course block type: ${block.type} with ID ${block.id}.  Expected block types are course, chapter, sequential, and vertical.`);
     }
   });
 
@@ -178,6 +188,19 @@ export function normalizeOutlineBlocks(courseId, blocks) {
           models.sequences[sequenceId].sectionId = section.id;
         } else {
           logInfo(`Section ${section.id} has child block ${sequenceId}, but that block is not in the list of sequences.`);
+        }
+      });
+    }
+  });
+
+  // Add a loop to set the parent sectionId for verticals
+  Object.values(models.sequences).forEach(sequence => {
+    if (Array.isArray(sequence.verticalIds)) {
+      sequence.verticalIds.forEach(verticalId => {
+        if (verticalId in models.verticals) {
+          models.verticals[verticalId].sequenceId = sequence.id;
+        } else {
+          logInfo(`Sequence ${sequence.id} has child block ${verticalId}, but that block is not in the list of verticals.`);
         }
       });
     }

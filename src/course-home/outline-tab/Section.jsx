@@ -23,10 +23,12 @@ function Section({
     complete,
     sequenceIds,
     title,
+    children,
   } = section;
   const {
     courseBlocks: {
       sequences,
+      verticals,
     },
   } = useModel('outline', courseId);
 
@@ -105,6 +107,16 @@ function Section({
               first={index === 0}
             />
           ))}
+          {/* Render verticals */}
+          {children && children.map(childId => {
+            const vertical = verticals[childId];
+            return (
+              <li key={childId}>
+                <a href={vertical.lms_web_url}>{vertical.display_name}</a>
+                {/* Optionally render children of verticals */}
+              </li>
+               );
+              })}
         </ol>
       </Collapsible>
     </li>
@@ -116,7 +128,12 @@ Section.propTypes = {
   defaultOpen: PropTypes.bool.isRequired,
   expand: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
-  section: PropTypes.shape().isRequired,
+  section: PropTypes.shape({
+    complete: PropTypes.bool.isRequired,
+    sequenceIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+    title: PropTypes.string.isRequired,
+    children: PropTypes.arrayOf(PropTypes.string), // New: children prop for verticals
+  }).isRequired,
 };
 
 export default injectIntl(Section);
