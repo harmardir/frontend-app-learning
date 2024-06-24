@@ -18,16 +18,16 @@ export function usePrivateCourseAlert(courseId) {
    *    2. the user is authenticated.
    * */
   const isVisible = !enrolledUser && (privateOutline || authenticatedUser !== null);
-  const payload = useMemo(() => ({
+  const payload = {
     anonymousUser: authenticatedUser === null,
     canEnroll: outline && outline.enrollAlert ? outline.enrollAlert.canEnroll : false,
     courseId,
-  }), [authenticatedUser, courseId, outline]);
+  };
 
   useAlert(isVisible, {
     code: 'clientPrivateCourseAlert',
     dismissible: false,
-    payload,
+    payload: useMemo(() => payload, Object.values(payload).sort()),
     topic: 'outline-private-alerts',
     type: ALERT_TYPES.WELCOME,
   });

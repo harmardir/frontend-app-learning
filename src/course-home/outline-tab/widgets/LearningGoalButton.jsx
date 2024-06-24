@@ -9,12 +9,12 @@ import { ReactComponent as FlagRegularIcon } from './flag_gray.svg';
 import FlagButton from './FlagButton';
 import messages from '../messages';
 
-const LearningGoalButton = ({
+function LearningGoalButton({
   level,
   isSelected,
   handleSelect,
   intl,
-}) => {
+}) {
   const buttonDetails = {
     casual: {
       daysPerWeek: 1,
@@ -47,7 +47,7 @@ const LearningGoalButton = ({
       isSelected={isSelected}
     />
   );
-};
+}
 
 LearningGoalButton.propTypes = {
   level: PropTypes.string.isRequired,

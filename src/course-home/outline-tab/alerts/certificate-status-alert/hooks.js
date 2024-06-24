@@ -75,7 +75,7 @@ function useCertificateStatusAlert(courseId) {
     && hasEnded
     && !userHasPassingGrade
   );
-  const payload = useMemo(() => ({
+  const payload = {
     certificateAvailableDate,
     certURL,
     certStatus,
@@ -85,12 +85,11 @@ function useCertificateStatusAlert(courseId) {
     org,
     notPassingCourseEnded,
     tabs,
-  }), [certStatus, certURL, certificateAvailableDate, courseId,
-    endBlock, notPassingCourseEnded, org, tabs, userTimezone]);
+  };
 
   useAlert(isVisible || notPassingCourseEnded, {
     code: 'clientCertificateStatusAlert',
-    payload,
+    payload: useMemo(() => payload, Object.values(payload).sort()),
     topic: 'outline-course-alerts',
   });
 

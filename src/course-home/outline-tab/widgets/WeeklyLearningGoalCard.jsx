@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import { Form, Card, Icon } from '@openedx/paragon';
+import { Form, Card, Icon } from '@edx/paragon';
 import { history } from '@edx/frontend-platform';
 import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { injectIntl, intlShape } from '@edx/frontend-platform/i18n';
-import { Email } from '@openedx/paragon/icons';
+import { Email } from '@edx/paragon/icons';
 import { useSelector } from 'react-redux';
 import messages from '../messages';
 import LearningGoalButton from './LearningGoalButton';
@@ -15,11 +15,11 @@ import { saveWeeklyLearningGoal } from '../../data';
 import { useModel } from '../../../generic/model-store';
 import './FlagButton.scss';
 
-const WeeklyLearningGoalCard = ({
+function WeeklyLearningGoalCard({
   daysPerWeek,
   subscribedToReminders,
   intl,
-}) => {
+}) {
   const {
     courseId,
   } = useSelector(state => state.courseHome);
@@ -36,7 +36,7 @@ const WeeklyLearningGoalCard = ({
   const [isGetReminderSelected, setGetReminderSelected] = useState(subscribedToReminders);
   const location = useLocation();
 
-  const handleSelect = (days, triggeredFromEmail = false) => {
+  function handleSelect(days, triggeredFromEmail = false) {
     // Set the subscription button if this is the first time selecting a goal
     const selectReminders = daysPerWeekGoal === null ? true : isGetReminderSelected;
     setGetReminderSelected(selectReminders);
@@ -51,10 +51,10 @@ const WeeklyLearningGoalCard = ({
         reminder_selected: selectReminders,
       });
       if (triggeredFromEmail) {
-        sendTrackEvent('enrollment.email.clicked.setgoal', {});
+        sendTrackEvent('welcome.email.clicked.setgoal', {});
       }
     }
-  };
+  }
 
   function handleSubscribeToReminders(event) {
     const isGetReminderChecked = event.target.checked;
@@ -84,7 +84,6 @@ const WeeklyLearningGoalCard = ({
         search: currentParams.toString(),
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
   return (
@@ -147,7 +146,7 @@ const WeeklyLearningGoalCard = ({
       )}
     </Card>
   );
-};
+}
 
 WeeklyLearningGoalCard.propTypes = {
   daysPerWeek: PropTypes.number,

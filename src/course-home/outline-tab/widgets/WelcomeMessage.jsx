@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { injectIntl, intlShape } from '@edx/frontend-platform/i18n';
-import { Alert, Button, TransitionReplace } from '@openedx/paragon';
+import { Alert, Button, TransitionReplace } from '@edx/paragon';
 import truncate from 'truncate-html';
 
 import { useDispatch } from 'react-redux';
@@ -11,36 +11,21 @@ import messages from '../messages';
 import { useModel } from '../../../generic/model-store';
 import { dismissWelcomeMessage } from '../../data/thunks';
 
-const WelcomeMessage = ({ courseId, intl }) => {
+function WelcomeMessage({ courseId, intl }) {
   const {
     welcomeMessageHtml,
   } = useModel('outline', courseId);
-
-  const [display, setDisplay] = useState(true);
-
-  // welcomeMessageHtml can contain comments or malformatted HTML which can impact the length that determines
-  // messageCanBeShortened. We clean it by calling truncate with a length of welcomeMessageHtml.length which
-  // will not result in a truncation but a formatting into 'truncate-html' canonical format.
-  const cleanedWelcomeMessageHtml = useMemo(
-    () => truncate(welcomeMessageHtml, welcomeMessageHtml.length, { keepWhitespaces: true }),
-    [welcomeMessageHtml],
-  );
-  const shortWelcomeMessageHtml = useMemo(
-    () => truncate(cleanedWelcomeMessageHtml, 100, { byWords: true, keepWhitespaces: true }),
-    [cleanedWelcomeMessageHtml],
-  );
-  const messageCanBeShortened = useMemo(
-    () => (shortWelcomeMessageHtml.length < cleanedWelcomeMessageHtml.length),
-    [cleanedWelcomeMessageHtml, shortWelcomeMessageHtml],
-  );
-
-  const [showShortMessage, setShowShortMessage] = useState(messageCanBeShortened);
-  const dispatch = useDispatch();
 
   if (!welcomeMessageHtml) {
     return null;
   }
 
+  const [display, setDisplay] = useState(true);
+
+  const shortWelcomeMessageHtml = truncate(welcomeMessageHtml, 100, { byWords: true, keepWhitespaces: true });
+  const messageCanBeShortened = shortWelcomeMessageHtml.length < welcomeMessageHtml.length;
+  const [showShortMessage, setShowShortMessage] = useState(messageCanBeShortened);
+  const dispatch = useDispatch();
   return (
     <Alert
       data-testid="alert-container-welcome"
@@ -77,14 +62,14 @@ const WelcomeMessage = ({ courseId, intl }) => {
             className="inline-link"
             data-testid="long-welcome-message-iframe"
             key="full-html"
-            html={cleanedWelcomeMessageHtml}
+            html={welcomeMessageHtml}
             title={intl.formatMessage(messages.welcomeMessage)}
           />
         )}
       </TransitionReplace>
     </Alert>
   );
-};
+}
 
 WelcomeMessage.propTypes = {
   courseId: PropTypes.string.isRequired,

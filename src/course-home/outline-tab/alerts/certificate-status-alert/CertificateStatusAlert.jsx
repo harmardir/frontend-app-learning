@@ -6,7 +6,7 @@ import {
   injectIntl,
   intlShape,
 } from '@edx/frontend-platform/i18n';
-import { Alert, Button } from '@openedx/paragon';
+import { Alert, Button } from '@edx/paragon';
 import { useDispatch } from 'react-redux';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -25,7 +25,7 @@ export const CERT_STATUS_TYPE = {
   UNVERIFIED: 'unverified',
 };
 
-const CertificateStatusAlert = ({ intl, payload }) => {
+function CertificateStatusAlert({ intl, payload }) {
   const dispatch = useDispatch();
   const {
     certificateAvailableDate,
@@ -189,7 +189,7 @@ const CertificateStatusAlert = ({ intl, payload }) => {
       )}
     </AlertWrapper>
   );
-};
+}
 
 CertificateStatusAlert.propTypes = {
   intl: intlShape.isRequired,
