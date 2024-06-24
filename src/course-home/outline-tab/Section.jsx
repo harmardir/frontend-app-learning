@@ -103,6 +103,7 @@ function Section({
               courseId={courseId}
               sequence={sequences[sequenceId]}
               first={index === 0}
+              hideFromTOC={sequences[sequenceId].hideFromTOC} // Pass hideFromTOC prop
             />
           ))}
         </ol>

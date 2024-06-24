@@ -26,6 +26,7 @@ function SequenceLink({
   courseId,
   first,
   sequence,
+  hideFromTOC, // Add hideFromTOC prop here
 }) {
   const {
     complete,
@@ -191,6 +192,7 @@ SequenceLink.propTypes = {
   courseId: PropTypes.string.isRequired,
   first: PropTypes.bool.isRequired,
   sequence: PropTypes.shape().isRequired,
+  hideFromTOC: PropTypes.bool, // Add hideFromTOC to propTypes
 };
 
 export default injectIntl(SequenceLink);
