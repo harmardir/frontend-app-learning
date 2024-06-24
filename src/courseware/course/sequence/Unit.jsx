@@ -20,6 +20,8 @@ import messages from './messages';
 // Import the ProgressBar component
 import ProgressBar from './ProgressBar';
 
+import { useSequenceNavigationMetadata } from './sequence-navigation/hooks';
+
 const HonorCode = React.lazy(() => import('./honor-code'));
 const LockPaywall = React.lazy(() => import('./lock-paywall'));
 
@@ -69,6 +71,12 @@ function Unit({
     contentTypeGatingEnabled,
     userNeedsIntegritySignature,
   } = course;
+
+  // Fetch the current sequence ID from the course model or similar
+  const currentSequenceId = course.currentSequenceId; // Make sure this is the correct way to fetch it
+
+  // Use the updated hook to get dynamic progress data
+  const { totalUnits, completedUnits } = useSequenceNavigationMetadata(currentSequenceId, id);
 
   const dispatch = useDispatch();
   useLoadBearingHook(id);
@@ -185,7 +193,7 @@ function Unit({
       { !mmp2p.meta.blockContent && !shouldDisplayHonorCode && (
         <>
           {/* Add ProgressBar component here */}
-          <ProgressBar totalUnits={10} completedUnits={4} />
+          <ProgressBar totalUnits={totalUnits} completedUnits={completedUnits} />
           <div className="unit-iframe-wrapper">
             <iframe
               id="unit-iframe"
