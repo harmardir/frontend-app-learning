@@ -17,9 +17,6 @@ import { fetchCourse } from '../../data';
 import BookmarkButton from '../bookmark/BookmarkButton';
 import messages from './messages';
 
-// Import the ProgressBar component
-import ProgressBar from './ProgressBar';
-
 import { useSequenceNavigationMetadata } from './sequence-navigation/hooks';
 
 const HonorCode = React.lazy(() => import('./honor-code'));
@@ -191,9 +188,7 @@ function Unit({
         />
       )}
       { !mmp2p.meta.blockContent && !shouldDisplayHonorCode && (
-        <>
-          {/* Add ProgressBar component here */}
-          <ProgressBar totalUnits={totalUnits} completedUnits={completedUnits} />
+
           <div className="unit-iframe-wrapper">
             <iframe
               id="unit-iframe"
