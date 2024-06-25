@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { SelectMenu } from '@edx/paragon';
 import { Link } from 'react-router-dom';
 import { useModel, useModels } from '../../generic/model-store';
+/** [MM-P2P] Experiment */
 import { MMP2PFlyoverTrigger } from '../../experiments/mm-p2p';
 import JumpNavMenuItem from './JumpNavMenuItem';
 
@@ -17,25 +18,72 @@ function CourseBreadcrumb({
   const defaultContent = content.filter(destination => destination.default)[0] || { id: courseId, label: '', sequences: [] };
   return (
     <>
-      {withSeparator && <li className="breadcrumb-separator">/</li>}
-      <li>
-        <Link to={`/course/${courseId}/${defaultContent.id}`}>
-          {defaultContent.label}
-        </Link>
-        {defaultContent.sequences.map((seq) => (
-          <Link key={seq.id} to={`/course/${courseId}/${seq.id}`}>
-            {seq.title}
-            {seq.units.map((unit) => (
-              <Link key={unit.id} to={`/course/${courseId}/${seq.id}/${unit.id}`}>
-                {unit.title}
-              </Link>
-            ))}
-          </Link>
-        ))}
+      {withSeparator && (
+         <li className="col-auto p-0 mx-2 text-primary-500 text-truncate text-nowrap" role="presentation" aria-hidden>
+         <svg xmlns="http://www.w3.org/2000/svg" width="8" height="12" viewBox="0 0 3 5" fill="none">
+       <path d="M2.74219 0.390625L0.534966 2.32194L2.74219 4.25326" stroke="#D2D2D2" stroke-width="1"></path>
+         </svg>
+       </li>
+      )}
+
+      <li style={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      }}
+      >
+        { getConfig().ENABLE_JUMPNAV !== 'true' || content.length < 2 || !isStaff
+          ? (
+            <Link
+              className="text-primary-500"
+              to={defaultContent.sequences.length
+                ? `/course/${courseId}/${defaultContent.sequences[0].id}`
+                : `/course/${courseId}/${defaultContent.id}`}
+            >
+              {defaultContent.label}
+            </Link>
+          )
+          : (
+            <SelectMenu isLink defaultMessage={defaultContent.label}>
+              {content.map(item => (
+                <JumpNavMenuItem
+                  isDefault={item.default}
+                  sequences={item.sequences}
+                  courseId={courseId}
+                  title={item.label}
+                  currentSequence={sequenceId}
+                  currentUnit={unitId}
+                />
+              ))}
+            </SelectMenu>
+          )}
+
       </li>
     </>
   );
 }
+CourseBreadcrumb.propTypes = {
+  content: PropTypes.arrayOf(
+    PropTypes.shape({
+      default: PropTypes.bool,
+      id: PropTypes.string,
+      label: PropTypes.string,
+    }),
+  ).isRequired,
+  sequenceId: PropTypes.string,
+  unitId: PropTypes.string,
+  withSeparator: PropTypes.bool,
+  courseId: PropTypes.string,
+  isStaff: PropTypes.bool,
+};
+
+CourseBreadcrumb.defaultProps = {
+  withSeparator: false,
+  sequenceId: null,
+  unitId: null,
+  courseId: null,
+  isStaff: null,
+};
 
 export default function CourseBreadcrumbs({
   courseId,
@@ -43,58 +91,99 @@ export default function CourseBreadcrumbs({
   sequenceId,
   unitId,
   isStaff,
+  /** [MM-P2P] Experiment */
   mmp2p,
 }) {
   const course = useModel('coursewareMeta', courseId);
   const courseStatus = useSelector(state => state.courseware.courseStatus);
   const sequenceStatus = useSelector(state => state.courseware.sequenceStatus);
 
-  const allSequencesInSections = useMemo(() => {
-    const sections = useModels('sections', course?.sectionIds);
-    return sections.map(section => ({
-      ...section,
-      sequences: section.sequenceIds.map(seqId => {
-        const sequence = useModel('sequences', seqId);
-        return {
-          ...sequence,
-          units: sequence.unitIds.map(unitId => useModel('units', unitId))
-        };
-      })
-    }));
-  }, [course?.sectionIds]);
+  const allSequencesInSections = Object.fromEntries(useModels('sections', course.sectionIds).map(section => [section.id, {
+    default: section.id === sectionId,
+    title: section.title,
+    sequences: useModels('sequences', section.sequenceIds),
+  }]));
 
   const links = useMemo(() => {
-    if (courseStatus !== 'loaded' || sequenceStatus !== 'loaded') return [];
-
-    return allSequencesInSections.flatMap(section => section.sequences.flatMap(sequence => ({
-      id: sequence.id,
-      label: sequence.title,
-      sequences: sequence.units
-    })));
+    const chapters = [];
+    const sequentials = [];
+    if (courseStatus === 'loaded' && sequenceStatus === 'loaded') {
+      Object.entries(allSequencesInSections).forEach(([id, section]) => {
+        chapters.push({
+          id,
+          label: section.title,
+          default: section.default,
+          sequences: section.sequences,
+        });
+        if (section.default) {
+          section.sequences.forEach(sequence => {
+            sequentials.push({
+              id: sequence.id,
+              label: sequence.title,
+              default: sequence.id === sequenceId,
+              sequences: [sequence],
+            });
+          });
+        }
+      });
+    }
+    return [chapters, sequentials];
   }, [courseStatus, sequenceStatus, allSequencesInSections]);
 
   return (
     <nav aria-label="breadcrumb" className="my-4 d-inline-block col-sm-10">
-      <ol className="list-unstyled d-flex flex-nowrap align-items-center m-0">
+      <ol className="list-unstyled d-flex  flex-nowrap align-items-center m-0">
         <li className="list-unstyled col-auto m-0 p-0">
-          <Link className="flex-shrink-0 text-primary" to={`/course/${courseId}/home`}>
+          <Link
+            className="flex-shrink-0 text-primary"
+            to={`/course/${courseId}/home`}
+          >
             <FontAwesomeIcon icon={faHome} className="mr-2" />
-            <FormattedMessage id="learn.breadcrumb.navigation.course.home" defaultMessage="Course" />
+            <FormattedMessage
+              id="learn.breadcrumb.navigation.course.home"
+              description="The course home link in breadcrumbs nav"
+              defaultMessage="Course"
+            />
           </Link>
         </li>
-        {links.map((content, index) => (
+        {links.map(content => (
           <CourseBreadcrumb
-            key={index}
             courseId={courseId}
             sequenceId={sequenceId}
             content={content}
             unitId={unitId}
-            withSeparator={index > 0}
+            withSeparator
             isStaff={isStaff}
           />
         ))}
-        {mmp2p.state && mmp2p.state.isEnabled && <MMP2PFlyoverTrigger options={mmp2p} />}
+        {/** [MM-P2P] Experiment */}
+        {mmp2p.state && mmp2p.state.isEnabled && (
+          <MMP2PFlyoverTrigger options={mmp2p} />
+        )}
       </ol>
     </nav>
   );
 }
+
+CourseBreadcrumbs.propTypes = {
+  courseId: PropTypes.string.isRequired,
+  sectionId: PropTypes.string,
+  sequenceId: PropTypes.string,
+  unitId: PropTypes.string,
+  isStaff: PropTypes.bool,
+  /** [MM-P2P] Experiment */
+  mmp2p: PropTypes.shape({
+    state: PropTypes.shape({
+      isEnabled: PropTypes.bool.isRequired,
+    }),
+  }),
+};
+
+CourseBreadcrumbs.defaultProps = {
+  sectionId: null,
+  sequenceId: null,
+  unitId: null,
+  isStaff: null,
+  /** [MM-P2P] Experiment */
+  mmp2p: {},
+};
