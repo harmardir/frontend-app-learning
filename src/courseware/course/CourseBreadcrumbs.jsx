@@ -1,16 +1,11 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { getConfig } from '@edx/frontend-platform';
-import { FormattedMessage } from '@edx/frontend-platform/i18n';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { useSelector } from 'react-redux';
-import { SelectMenu } from '@edx/paragon';
-import { Link } from 'react-router-dom';
 import { useModel, useModels } from '../../generic/model-store';
-/** [MM-P2P] Experiment */
-import { MMP2PFlyoverTrigger } from '../../experiments/mm-p2p';
-import JumpNavMenuItem from './JumpNavMenuItem';
 
 function CourseBreadcrumb({
   content, withSeparator, courseId, sequenceId, unitId, isStaff,
@@ -19,49 +14,32 @@ function CourseBreadcrumb({
   return (
     <>
       {withSeparator && (
-        <li className="col-auto p-0 mx-2 text-primary-500 text-truncate text-nowrap" role="presentation" aria-hidden>
-          <svg xmlns="http://www.w3.org/2000/svg" width="8" height="12" viewBox="0 0 3 5" fill="none">
-        <path d="M2.74219 0.390625L0.534966 2.32194L2.74219 4.25326" stroke="#D2D2D2" stroke-width="1"></path>
-          </svg>
+        <li className="breadcrumb-separator">/</li>
+      )}
+      <li>
+        <Link to={`/course/${courseId}/${defaultContent.id}`}>
+          {defaultContent.label}
+        </Link>
+      </li>
+      {defaultContent.sequences.length > 0 && (
+        <li>
+          <Link to={`/course/${courseId}/${defaultContent.sequences[0].id}`}>
+            {defaultContent.sequences[0].title}
+          </Link>
         </li>
       )}
-
-      <li style={{
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-      }}
-      >
-        { getConfig().ENABLE_JUMPNAV !== 'true' || content.length < 2 || !isStaff
-          ? (
-            <Link
-              className="text-primary-500"
-              to={defaultContent.sequences.length
-                ? `/course/${courseId}/${defaultContent.sequences[0].id}`
-                : `/course/${courseId}/${defaultContent.id}`}
-            >
-              {defaultContent.label}
-            </Link>
-          )
-          : (
-            <SelectMenu isLink defaultMessage={defaultContent.label}>
-              {content.map(item => (
-                <JumpNavMenuItem
-                  isDefault={item.default}
-                  sequences={item.sequences}
-                  courseId={courseId}
-                  title={item.label}
-                  currentSequence={sequenceId}
-                  currentUnit={unitId}
-                />
-              ))}
-            </SelectMenu>
-          )}
-
-      </li>
+      {unitId && (
+        <li>
+          <Link to={`/course/${courseId}/${sequenceId}/${unitId}`}>
+            {/* Assuming `unitTitle` is part of `unitId`'s data object, you need to fetch it appropriately */}
+            {unitId}  
+          </Link>
+        </li>
+      )}
     </>
   );
 }
+
 CourseBreadcrumb.propTypes = {
   content: PropTypes.arrayOf(
     PropTypes.shape({
@@ -91,8 +69,6 @@ export default function CourseBreadcrumbs({
   sequenceId,
   unitId,
   isStaff,
-  /** [MM-P2P] Experiment */
-  mmp2p,
 }) {
   const course = useModel('coursewareMeta', courseId);
   const courseStatus = useSelector(state => state.courseware.courseStatus);
@@ -102,15 +78,17 @@ export default function CourseBreadcrumbs({
     default: section.id === sectionId,
     title: section.title,
     sequences: useModels('sequences', section.sequenceIds),
+    units: useModels('units', section.unitIds), // Ensure you handle fetching of unitIds properly
   }]));
 
   const links = useMemo(() => {
     const chapters = [];
     const sequentials = [];
+    const units = []; // New array to hold unit links
     if (courseStatus === 'loaded' && sequenceStatus === 'loaded') {
-      Object.entries(allSequencesInSections).forEach(([id, section]) => {
+      Object.entries(allSequencesInSections).forEach(([sectionId, section]) => {
         chapters.push({
-          id,
+          id: sectionId,
           label: section.title,
           default: section.default,
           sequences: section.sequences,
@@ -121,29 +99,29 @@ export default function CourseBreadcrumbs({
               id: sequence.id,
               label: sequence.title,
               default: sequence.id === sequenceId,
-              sequences: [sequence],
+              sequences: sequence.units, // Adjust to handle units
+            });
+            sequence.units.forEach(unit => { // Loop through units and prepare unit-specific links
+              units.push({
+                id: unit.id,
+                label: unit.title,
+                default: unit.id === unitId,
+              });
             });
           });
         }
       });
     }
-    return [chapters, sequentials];
+    return [chapters, sequentials, units]; // Return units in the breadcrumb data
   }, [courseStatus, sequenceStatus, allSequencesInSections]);
 
   return (
     <nav aria-label="breadcrumb" className="my-4 d-inline-block col-sm-10">
-      <ol className="list-unstyled d-flex  flex-nowrap align-items-center m-0">
+      <ol className="list-unstyled d-flex flex-nowrap align-items-center m-0">
         <li className="list-unstyled col-auto m-0 p-0">
-          <Link
-            className="flex-shrink-0 text-primary"
-            to={`/course/${courseId}/home`}
-          >
+          <Link className="flex-shrink-0 text-primary" to={`/course/${courseId}/home`}>
             <FontAwesomeIcon icon={faHome} className="mr-2" />
-            <FormattedMessage
-              id="learn.breadcrumb.navigation.course.home"
-              description="The course home link in breadcrumbs nav"
-              defaultMessage="Course"
-            />
+            <FormattedMessage id="learn.breadcrumb.navigation.course.home" defaultMessage="Course" />
           </Link>
         </li>
         {links.map(content => (
@@ -156,10 +134,6 @@ export default function CourseBreadcrumbs({
             isStaff={isStaff}
           />
         ))}
-        {/** [MM-P2P] Experiment */}
-        {mmp2p.state && mmp2p.state.isEnabled && (
-          <MMP2PFlyoverTrigger options={mmp2p} />
-        )}
       </ol>
     </nav>
   );
@@ -171,12 +145,6 @@ CourseBreadcrumbs.propTypes = {
   sequenceId: PropTypes.string,
   unitId: PropTypes.string,
   isStaff: PropTypes.bool,
-  /** [MM-P2P] Experiment */
-  mmp2p: PropTypes.shape({
-    state: PropTypes.shape({
-      isEnabled: PropTypes.bool.isRequired,
-    }),
-  }),
 };
 
 CourseBreadcrumbs.defaultProps = {
@@ -184,6 +152,4 @@ CourseBreadcrumbs.defaultProps = {
   sequenceId: null,
   unitId: null,
   isStaff: null,
-  /** [MM-P2P] Experiment */
-  mmp2p: {},
 };
