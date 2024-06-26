@@ -17,15 +17,48 @@ import { fetchCourse } from '../../data';
 import BookmarkButton from '../bookmark/BookmarkButton';
 import messages from './messages';
 
-import { useSequenceNavigationMetadata } from './sequence-navigation/hooks';
-
 const HonorCode = React.lazy(() => import('./honor-code'));
 const LockPaywall = React.lazy(() => import('./lock-paywall'));
 
+/**
+ * Feature policy for iframe, allowing access to certain courseware-related media.
+ *
+ * We must use the wildcard (*) origin for each feature, as courseware content
+ * may be embedded in external iframes. Notably, xblock-lti-consumer is a popular
+ * block that iframes external course content.
+
+ * This policy was selected in conference with the edX Security Working Group.
+ * Changes to it should be vetted by them (security@edx.org).
+ */
 const IFRAME_FEATURE_POLICY = (
   'microphone *; camera *; midi *; geolocation *; encrypted-media *'
 );
 
+/**
+ * We discovered an error in Firefox where - upon iframe load - React would cease to call any
+ * useEffect hooks until the user interacts with the page again.  This is particularly confusing
+ * when navigating between sequences, as the UI partially updates leaving the user in a nebulous
+ * state.
+ *
+ * We were able to solve this error by using a layout effect to update some component state, which
+ * executes synchronously on render.  Somehow this forces React to continue it's lifecycle
+ * immediately, rather than waiting for user interaction.  This layout effect could be anywhere in
+ * the parent tree, as far as we can tell - we chose to add a conspicuously 'load bearing' (that's
+ * a joke) one here so it wouldn't be accidentally removed elsewhere.
+ *
+ * If we remove this hook when one of these happens:
+ * 1. React figures out that there's an issue here and fixes a bug.
+ * 2. We cease to use an iframe for unit rendering.
+ * 3. Firefox figures out that there's an issue in their iframe loading and fixes a bug.
+ * 4. We stop supporting Firefox.
+ * 5. An enterprising engineer decides to create a repo that reproduces the problem, submits it to
+ *    Firefox/React for review, and they kindly help us figure out what in the world is happening
+ *    so  we can fix it.
+ *
+ * This hook depends on the unit id just to make sure it re-evaluates whenever the ID changes.  If
+ * we change whether or not the Unit component is re-mounted when the unit ID changes, this may
+ * become important, as this hook will otherwise only evaluate the useLayoutEffect once.
+ */
 function useLoadBearingHook(id) {
   const setValue = useState(0)[1];
   useLayoutEffect(() => {
@@ -36,6 +69,8 @@ function useLoadBearingHook(id) {
 export function sendUrlHashToFrame(frame) {
   const { hash } = window.location;
   if (hash) {
+    // The url hash will be sent to LMS-served iframe in order to find the location of the
+    // hash within the iframe.
     frame.contentWindow.postMessage({ hashName: hash }, `${getConfig().LMS_BASE_URL}`);
   }
 }
@@ -46,6 +81,7 @@ function Unit({
   onLoaded,
   id,
   intl,
+  /** [MM-P2P] Experiment */
   mmp2p,
 }) {
   const { authenticatedUser } = useContext(AppContext);
@@ -69,13 +105,8 @@ function Unit({
     userNeedsIntegritySignature,
   } = course;
 
-  // Fetch the current sequence ID from the course model or similar
-  const currentSequenceId = course.currentSequenceId; // Make sure this is the correct way to fetch it
-
-  // Use the updated hook to get dynamic progress data
-  const { totalUnits, completedUnits } = useSequenceNavigationMetadata(currentSequenceId, id);
-
   const dispatch = useDispatch();
+  // Do not remove this hook.  See function description.
   useLoadBearingHook(id);
 
   useEffect(() => {
@@ -94,6 +125,8 @@ function Unit({
     if (type === 'plugin.resize') {
       setIframeHeight(payload.height);
 
+      // We observe exit from the video xblock full screen mode
+      // and do page scroll to the previously saved scroll position
       if (windowTopOffset !== null) {
         window.scrollTo(0, Number(windowTopOffset));
       }
@@ -108,14 +141,16 @@ function Unit({
       payload.open = true;
       setModalOptions(payload);
     } else if (type === 'plugin.videoFullScreen') {
+      // We listen for this message from LMS to know when we need to
+      // save or reset scroll position on toggle video xblock full screen mode.
       setWindowTopOffset(payload.open ? window.scrollY : null);
     } else if (data.offset) {
+      // We listen for this message from LMS to know when the page needs to
+      // be scrolled to another location on the page.
       window.scrollTo(0, data.offset + document.getElementById('unit-iframe').offsetTop);
     }
   }, [id, setIframeHeight, hasLoaded, iframeHeight, setHasLoaded, onLoaded, setWindowTopOffset, windowTopOffset]);
-  
   useEventListener('message', receiveMessage);
-
   useEffect(() => {
     sendUrlHashToFrame(document.getElementById('unit-iframe'));
   }, [id, setIframeHeight, hasLoaded, iframeHeight, setHasLoaded, onLoaded]);
@@ -140,6 +175,7 @@ function Unit({
           <LockPaywall courseId={courseId} />
         </Suspense>
       )}
+      { /** [MM-P2P] Experiment */ }
       { mmp2p.meta.showLock && (
         <MMP2PLockPaywall options={mmp2p} />
       )}
@@ -154,6 +190,7 @@ function Unit({
           <HonorCode courseId={courseId} />
         </Suspense>
       )}
+      { /** [MM-P2P] Experiment (conditional) */ }
       {!mmp2p.meta.blockContent && !shouldDisplayHonorCode && !hasLoaded && !showError && (
         <PageLoading
           srMessage={intl.formatMessage(messages.loadingSequence)}
@@ -187,31 +224,35 @@ function Unit({
           dialogClassName="modal-lti"
         />
       )}
+      { /** [MM-P2P] Experiment (conditional) */ }
       { !mmp2p.meta.blockContent && !shouldDisplayHonorCode && (
+        <div className="unit-iframe-wrapper">
+          <iframe
+            id="unit-iframe"
+            title={unit.title}
+            src={iframeUrl}
+            allow={IFRAME_FEATURE_POLICY}
+            allowFullScreen
+            height={iframeHeight}
+            scrolling="no"
+            referrerPolicy="origin"
+            onLoad={() => {
+              // onLoad *should* only fire after everything in the iframe has finished its own load events.
+              // Which means that the plugin.resize message (which calls setHasLoaded above) will have fired already
+              // for a successful load. If it *has not fired*, we are in an error state. For example, the backend
+              // could have given us a 4xx or 5xx response.
+              if (!hasLoaded) {
+                setShowError(true);
+              }
 
-          <div className="unit-iframe-wrapper">
-            <iframe
-              id="unit-iframe"
-              title={unit.title}
-              src={iframeUrl}
-              allow={IFRAME_FEATURE_POLICY}
-              allowFullScreen
-              height={iframeHeight}
-              scrolling="no"
-              referrerPolicy="origin"
-              onLoad={() => {
-                if (!hasLoaded) {
-                  setShowError(true);
+              window.onmessage = (e) => {
+                if (e.data.event_name) {
+                  dispatch(processEvent(e.data, fetchCourse));
                 }
-                window.onmessage = (e) => {
-                  if (e.data.event_name) {
-                    dispatch(processEvent(e.data, fetchCourse));
-                  }
-                };
-              }}
-            />
-          </div>
-        </>
+              };
+            }}
+          />
+        </div>
       )}
     </div>
   );
@@ -223,6 +264,7 @@ Unit.propTypes = {
   id: PropTypes.string.isRequired,
   intl: intlShape.isRequired,
   onLoaded: PropTypes.func,
+  /** [MM-P2P] Experiment */
   mmp2p: PropTypes.shape({
     state: PropTypes.shape({
       isEnabled: PropTypes.bool.isRequired,
@@ -237,6 +279,7 @@ Unit.propTypes = {
 Unit.defaultProps = {
   format: null,
   onLoaded: undefined,
+  /** [MM-P2P] Experiment */
   mmp2p: {
     state: {
       isEnabled: false,
