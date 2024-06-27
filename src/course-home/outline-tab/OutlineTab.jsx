@@ -32,10 +32,6 @@ import AccountActivationAlert from '../../alerts/logistration-alert/AccountActiv
 /** [MM-P2P] Experiment */
 import { initHomeMMP2P, MMP2PFlyover } from '../../experiments/mm-p2p';
 
-
-const bannerImageUrl = "https://undp-lms.kashida-learning.co/asset-v1:ACINET+ACINET_A+T2_2024+type@asset+block@course_about.png";
-const bannerAltText = "Course About Banner";
-
 function OutlineTab({ intl }) {
   const {
     courseId,
@@ -133,11 +129,6 @@ function OutlineTab({ intl }) {
 
   return (
     <>
-    {/* Banner Image */}
-    <div className="banner-image-wrapper" style={{ width: '100%' }}>
-      <img src={bannerImageUrl} alt={bannerAltText} style={{ width: '100%', height: 'auto' }} />
-    </div>
-    
       <div data-learner-type={learnerType} className="row w-100 mx-0 my-3 justify-content-between">
         <div className="col-12 col-sm-auto p-0">
           <div role="heading" aria-level="1" className="h2">{title}</div>
