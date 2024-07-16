@@ -51,7 +51,7 @@ function SequenceNavigation({
         <UnitButton unitId={unitId} title="" contentType="lock" isActive onClick={() => {}} />
       );
     }
-    if (sequence.unitIds.length === 0 || unitId === null) {
+    if (!sequence || !sequence.unitIds || sequence.unitIds.length === 0 || unitId === null) {
       return (
         <div style={{ flexBasis: '100%', minWidth: 0, borderBottom: 'solid 1px #EAEAEA' }} />
       );
