@@ -39,9 +39,7 @@ function SequenceNavigation({
     courseId,
     sequenceStatus,
   } = useSelector(state => state.courseware);
-  const isLocked = sequenceStatus === LOADED ? (
-    sequence.gatedContent !== undefined && sequence.gatedContent.gated
-  ) : undefined;
+  const isLocked = sequenceStatus === LOADED && sequence?.gatedContent?.gated;
 
   const shouldDisplayNotificationTriggerInSequence = useWindowSize().width < breakpoints.small.minWidth;
 
@@ -51,7 +49,7 @@ function SequenceNavigation({
         <UnitButton unitId={unitId} title="" contentType="lock" isActive onClick={() => {}} />
       );
     }
-    if (!sequence || !sequence.unitIds || sequence.unitIds.length === 0 || unitId === null) {
+    if (!sequence?.unitIds?.length || unitId === null) {
       return (
         <div style={{ flexBasis: '100%', minWidth: 0, borderBottom: 'solid 1px #EAEAEA' }} />
       );
@@ -83,7 +81,7 @@ function SequenceNavigation({
   const prevArrow = isRtl(getLocale()) ? ChevronRight : ChevronLeft;
 
   return sequenceStatus === LOADED && (
-    <nav id="courseware-sequenceNavigation" className={classNames('sequence-navigation', className)} style={{ width: shouldDisplayNotificationTriggerInSequence ? '90%' : null }}>
+    <nav id="courseware-sequenceNavigation" className={classNames('sequence-navigation', className)} style={{ width: shouldDisplayNotificationTriggerInSequence ? '90%' : 'auto' }}>
       <Button variant="link" className="previous-btn" onClick={previousSequenceHandler} disabled={isFirstUnit} iconBefore={prevArrow}>
         {shouldDisplayNotificationTriggerInSequence ? null : intl.formatMessage(messages.previousButton)}
       </Button>
@@ -116,7 +114,6 @@ SequenceNavigation.propTypes = {
 SequenceNavigation.defaultProps = {
   className: null,
   unitId: null,
-
   /** [MM-P2P] Experiment */
   mmp2p: {
     state: { isEnabled: false },
