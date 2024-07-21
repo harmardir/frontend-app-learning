@@ -14,9 +14,16 @@ export function useSequenceNavigationMetadata(currentSequenceId, currentUnitId) 
   console.log("Course Status:", courseStatus, "Sequence Status:", sequenceStatus);  // Log statuses
 
   // Check for loaded states and presence of necessary IDs before proceeding
-  if (courseStatus !== 'loaded' || sequenceStatus !== 'loaded' || !currentSequenceId || !currentUnitId || !sequence || !sequence.unitIds) {
-    console.log("Early exit conditions met:", {courseStatus, sequenceStatus, currentSequenceId, currentUnitId, sequence});
+  if (courseStatus !== 'loaded' || sequenceStatus !== 'loaded' || !currentSequenceId || !sequence || !sequence.unitIds) {
+    console.log("Adjusted early exit conditions met:", {courseStatus, sequenceStatus, currentSequenceId, sequence});
     return { isFirstUnit: false, isLastUnit: false, totalUnits: 0, completedUnits: 0 };
+  }
+
+  // Only proceed if currentUnitId is valid
+  if (!currentUnitId) {
+    console.log("Current Unit ID is null, adjusting processing logic.");
+    // Adjusted processing logic or early return
+    return { isFirstUnit: false, isLastUnit: false, totalUnits: sequence.unitIds.length, completedUnits: 0 }; // Example adjustment
   }
 
   console.log("Unit IDs:", sequence.unitIds);  // Ensure unitIds are defined
