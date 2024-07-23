@@ -357,8 +357,9 @@
 }
 
 .raised-card {
-  border: 0 !important;
-  box-shadow: 0 .0625rem .125rem rgba(0, 0, 0, .2) !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid #627631 !important;
+  border-radius: 0 !important;
 }
 
 
@@ -451,7 +452,7 @@ text-align: left !important;
 
 .btn.btn-outline-primary.btn-block {
   border-radius: 1.91px;
-  border: 0.764px solid var(--Blue-Dark, #06263D);
+  border: 2px solid var(--Blue-Dark, #06263D);
   color: var(--Blue-Dark, #06263D);
   text-align: center;
   font-family: 'Noto Kufi Arabic';
