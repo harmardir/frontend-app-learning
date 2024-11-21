@@ -36,8 +36,14 @@ function SequenceLink({
 
   const timezoneFormatArgs = userTimezone ? { timeZone: userTimezone } : {};
 
-  const coursewareUrl = <Link to={`/course/${courseId}/${id}`}>{title}</Link>;
-  const displayTitle = showLink ? coursewareUrl : title;
+  //const coursewareUrl = <Link to={`/course/${courseId}/${id}`}>{title}</Link>;
+  //const displayTitle = showLink ? coursewareUrl : title;
+
+  // Remove "(n Question)" or "(n Questions)" from the title
+  const sanitizedTitle = title.replace(/\(\d+ Questions?\)/, '');
+  // Use the sanitized title in the link or plain text
+  const coursewareUrl = <Link to={`/course/${courseId}/${id}`}>{sanitizedTitle}</Link>;
+  const displayTitle = showLink ? coursewareUrl : sanitizedTitle;
 
   return (
     <li>
