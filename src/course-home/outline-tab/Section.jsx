@@ -104,6 +104,7 @@ function Section({
               sequence={sequences[sequenceId]}
               first={index === 0}
               hideFromTOC={sequences[sequenceId].hideFromTOC} // Pass hideFromTOC prop
+              expand={expand} // Pass the expand prop here
             />
           ))}
         </ol>

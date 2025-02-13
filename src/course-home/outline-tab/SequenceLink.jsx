@@ -46,7 +46,7 @@ function SequenceLink({
 
   const [unitData, setUnitData] = useState();
 
-  const [open, setOpen] = useState(false);
+  //const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -150,13 +150,14 @@ function SequenceLink({
         className="mb-2"
         styling="card-lg"
         title={sequenceTitle}
-        open={open}
-        onToggle={() => { setOpen(!open); }}
+        open={expand}
+        //open={open}
+        //onToggle={() => { setOpen(!open); }}
         iconWhenClosed={(
           <IconButton
             alt={intl.formatMessage(messages.openSection)}
             icon={faPlus}
-            onClick={() => { setOpen(true); }}
+            //onClick={() => { setOpen(true); }}
             size="sm"
           />
         )}
@@ -164,7 +165,7 @@ function SequenceLink({
           <IconButton
             alt={intl.formatMessage(genericMessages.close)}
             icon={faMinus}
-            onClick={() => { setOpen(false); }}
+            //onClick={() => { setOpen(false); }}
             size="sm"
           />
         )}
