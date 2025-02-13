@@ -27,6 +27,7 @@ function SequenceLink({
   first,
   sequence,
   hideFromTOC, // Add hideFromTOC prop here
+  expand,
 }) {
   const {
     complete,
