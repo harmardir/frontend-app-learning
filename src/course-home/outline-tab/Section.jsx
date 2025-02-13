@@ -76,13 +76,12 @@ function Section({
         className="mb-2"
         styling="card-lg"
         title={sectionTitle}
-        open={open}
-        onToggle={() => { setOpen(!open); }}
+        open={expand}  // Use `expand` prop directly to control the open state
+        onToggle={() => { /* no need to toggle local state, the prop will control it */ }}
         iconWhenClosed={(
           <IconButton
             alt={intl.formatMessage(messages.openSection)}
             icon={faPlus}
-            onClick={() => { setOpen(true); }}
             size="sm"
           />
         )}
@@ -90,7 +89,6 @@ function Section({
           <IconButton
             alt={intl.formatMessage(genericMessages.close)}
             icon={faMinus}
-            onClick={() => { setOpen(false); }}
             size="sm"
           />
         )}
@@ -103,8 +101,8 @@ function Section({
               courseId={courseId}
               sequence={sequences[sequenceId]}
               first={index === 0}
-              hideFromTOC={sequences[sequenceId].hideFromTOC} // Pass hideFromTOC prop
-              expand={expand} // Pass the expand prop here
+              hideFromTOC={sequences[sequenceId].hideFromTOC}
+              expand={expand}  // Ensure `expand` prop is passed down to SequenceLink
             />
           ))}
         </ol>
