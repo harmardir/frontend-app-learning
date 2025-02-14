@@ -33,12 +33,18 @@ function Section({
   const [open, setOpen] = useState(defaultOpen);
 
   useEffect(() => {
-    setOpen(expand);
+    setOpen(expand); // Sync with Expand All button
   }, [expand]);
+  
 
-  useEffect(() => {
-    setOpen(defaultOpen);
-  }, []);
+ // useEffect(() => {
+ //   setOpen(defaultOpen);
+ // }, []);
+
+ const toggleSection = () => {
+  setOpen(prevOpen => !prevOpen); // Toggle only this section
+};
+
 
   const sectionTitle = (
     <div className="row w-100 m-0">
@@ -77,22 +83,24 @@ function Section({
         styling="card-lg"
         title={sectionTitle}
         open={expand}  // Use `expand` prop directly to control the open state
-        onToggle={() => { /* no need to toggle local state, the prop will control it */ }}
+        onToggle={toggleSection} // Handle individual toggle
         iconWhenClosed={(
           <IconButton
             alt={intl.formatMessage(messages.openSection)}
             icon={faPlus}
+            onClick={toggleSection} // Fix toggle behavior
             size="sm"
           />
         )}
-        iconWhenOpen={(
-          <IconButton
-            alt={intl.formatMessage(genericMessages.close)}
-            icon={faMinus}
-            size="sm"
-          />
-        )}
-      >
+          iconWhenOpen={(
+            <IconButton
+              alt={intl.formatMessage(genericMessages.close)}
+              icon={faMinus}
+              onClick={toggleSection} // Fix toggle behavior
+              size="sm"
+            />
+          )}
+        >
         <ol className="list-unstyled">
           {sequenceIds.map((sequenceId, index) => (
             <SequenceLink
