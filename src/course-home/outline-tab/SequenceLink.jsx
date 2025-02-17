@@ -46,8 +46,7 @@ function SequenceLink({
   const displayTitle = showLink ? coursewareUrl : title;
 
   const [unitData, setUnitData] = useState();
-
-  //const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -56,6 +55,15 @@ function SequenceLink({
     };
     getData();
   }, []);
+
+  useEffect(() => {
+    setOpen(expand);
+  }, [expand]);
+
+  const handleToggle = () => {
+    setOpen((prev) => !prev);
+  };
+
 
   const sequenceTitle = (
     <div className="d-flex row w-100 m-0">
@@ -96,64 +104,15 @@ function SequenceLink({
       )}
     </div>
   );
-  // return (
-  //   <li>
-  //     <div className={classNames('', { 'mt-2 pt-2 border-top border-light': !first })}>
-  //       <div className="row w-100 m-0">
-  //         <div className="col-auto p-0">
-  //           {complete ? (
-  //             <FontAwesomeIcon
-  //               icon={fasCheckCircle}
-  //               fixedWidth
-  //               className="float-left text-success mt-1"
-  //               aria-hidden={complete}
-  //               title={intl.formatMessage(messages.completedAssignment)}
-  //             />
-  //           ) : (
-  //             <FontAwesomeIcon
-  //               icon={farCheckCircle}
-  //               fixedWidth
-  //               className="float-left text-gray-400 mt-1"
-  //               aria-hidden={complete}
-  //               title={intl.formatMessage(messages.incompleteAssignment)}
-  //             />
-  //           )}
-  //         </div>
-  //         <div className="col-10 p-0 ml-3 text-break">
-  //           <span className="align-middle">{displayTitle}</span>
-  //           <span className="sr-only">
-  //             , {intl.formatMessage(complete ? messages.completedAssignment : messages.incompleteAssignment)}
-  //           </span>
-  //           <EffortEstimate className="ml-3 align-middle" block={sequence} />
-  //         </div>
-  //       </div>
-  //       {hideFromTOC && (
-  //         <div className="row w-100 my-2 mx-4 pl-3">
-  //           <span className="small d-flex">
-  //             <Icon className="mr-2" src={Block} data-testid="hide-from-toc-sequence-link-icon" />
-  //             <span data-testid="hide-from-toc-sequence-link-text">
-  //               {intl.formatMessage(messages.hiddenSequenceLink)}
-  //             </span>
-  //           </span>
-  //         </div>
-  //       )}
-  //       <div className="row w-100 m-0 ml-3 pl-3">
-  //         <small className="text-body pl-2">
-  //           {due ? dueDateMessage : noDueDateMessage}
-  //         </small>
-  //       </div>
-  //     </div>
-  //   </li>
-  // );
+ 
   return (
     <li>
       <Collapsible
         className="mb-2"
         styling="card-lg"
         title={sequenceTitle}
-        open={expand}
-        //open={open}
-        //onToggle={() => { setOpen(!open); }}
+        open={open}
+        onToggle={handleToggle} // Added this line
         iconWhenClosed={(
           <IconButton
             alt={intl.formatMessage(messages.openSection)}

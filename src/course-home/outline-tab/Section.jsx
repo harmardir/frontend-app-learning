@@ -31,14 +31,16 @@ function Section({
   } = useModel('outline', courseId);
 
   const [open, setOpen] = useState(defaultOpen);
+  
 
   useEffect(() => {
     setOpen(expand);
   }, [expand]);
 
-  useEffect(() => {
-    setOpen(defaultOpen);
-  }, []);
+  const handleToggle = () => {
+    setOpen((prev) => !prev);
+  };
+  
 
   const sectionTitle = (
     <div className="row w-100 m-0">
@@ -76,8 +78,8 @@ function Section({
         className="mb-2"
         styling="card-lg"
         title={sectionTitle}
-        open={expand}  // Use `expand` prop directly to control the open state
-        onToggle={() => { /* no need to toggle local state, the prop will control it */ }}
+        open={open}  
+        onToggle={handleToggle} // Added this line
         iconWhenClosed={(
           <IconButton
             alt={intl.formatMessage(messages.openSection)}
