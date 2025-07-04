@@ -34,6 +34,7 @@ function Course({
   const {
     celebrations,
     isStaff,
+    title,
   } = useModel('courseHomeMeta', courseId);
   const sequence = useModel('sequences', sequenceId);
   const section = useModel('sections', sequence ? sequence.sectionId : null);
@@ -88,6 +89,13 @@ function Course({
       <Helmet>
         <title>{`${pageTitleBreadCrumbs.join(' | ')} | ${getConfig().SITE_NAME}`}</title>
       </Helmet>
+
+      <div data-learner-type="b2c_learner" className="row w-100 mx-0 my-3 justify-content-between">
+       <div className="col-12 col-sm-auto p-0">
+        <div role="heading" aria-level="1" className="h2">{title}</div>
+        </div>
+      </div>
+
       <div className="position-relative d-flex align-items-start">
         <CourseBreadcrumbs
           courseId={courseId}
